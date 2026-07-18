@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>faskat_navi — layers of the wired</title>
+<title>Faskat — layers of the wired</title>
 <style>
   :root {
     --bg: #0a0908;
@@ -38,7 +38,7 @@
   .vign { position: fixed; inset: 0; z-index: 39; pointer-events: none;
     background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0,0,0,.55) 100%); }
 
-  .frame { max-width: 1180px; margin: 0 auto; padding: 0 20px 70px; }
+  .frame { max-width: 1580px; margin: 0 auto; padding: 0 28px 70px; }
 
   /* boot */
   #boot { position: fixed; inset: 0; z-index: 60; background: #050404;
@@ -79,7 +79,7 @@
   .sect .jp { font-size: 11px; color: var(--dim); }
 
   /* layer grid */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 22px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr)); gap: 28px; }
   .layer { background: var(--panel); border: 1px solid var(--line); position: relative; transition: border-color .15s; }
   .layer:hover { border-color: var(--red); }
   .layer:hover .glitchbar { opacity: 1; }
@@ -96,13 +96,24 @@
   .st-dev { color: #c9a15a; }
   .st-off { color: var(--red-hot); }
 
-  .screen { position: relative; height: 200px; background: #060505; overflow: hidden; }
+  /* screens styled as old CRT TV sets: thick bezel, curved glass, glare */
+  .screen { position: relative; height: 300px; background: #060505; overflow: hidden;
+    margin: 16px 16px 0; border-radius: 20px;
+    border: 12px solid #17120e;
+    outline: 1px solid #342b21;
+    box-shadow: 0 8px 22px rgba(0,0,0,.6), inset 0 0 0 2px #000; }
+  .screen::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    border-radius: 10px;
+    background:
+      radial-gradient(ellipse at center, transparent 56%, rgba(0,0,0,.55) 100%),
+      linear-gradient(112deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,.02) 16%, transparent 30%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px); }
   .screen iframe {
     width: 1280px; height: 800px; border: 0; transform-origin: 0 0;
     position: absolute; top: 0; left: 0; pointer-events: none; background: #fff;
   }
   .screen .shade { position: absolute; inset: 0; pointer-events: none;
-    box-shadow: inset 0 0 70px rgba(5,4,4,.85); }
+    box-shadow: inset 0 0 46px rgba(5,4,4,.7); }
   .uplink-tag { position: absolute; right: 8px; bottom: 6px; z-index: 2; font-size: 10px;
     letter-spacing: .2em; color: var(--phos); background: rgba(5,4,4,.7); padding: 1px 8px; }
 
@@ -158,9 +169,9 @@
   canvas.static { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .14; }
 
   /* reisync live demo — faithful console replica */
-  .rei-host { display: flex; justify-content: center; height: 100%; overflow: hidden;
-    background: #050505; cursor: pointer; }
-  .rei-shell { transform: scale(.35); transform-origin: top center; }
+  .rei-host { display: flex; justify-content: center; align-items: center; height: 100%;
+    overflow: hidden; background: #050505; cursor: pointer; }
+  .rei-shell { transform-origin: center center; }
   .rei-pre { font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
     font-size: 10px; line-height: 11px; color: #bbb; margin: 0; white-space: pre; }
   #jack .jel { flex: 1; overflow: auto; display: none; background: #050505;
@@ -209,6 +220,8 @@
   @media (max-width: 560px) {
     .prof { grid-template-columns: 1fr; }
     .logo { font-size: 24px; }
+    .frame { padding: 0 14px 50px; }
+    .screen { height: 230px; margin: 10px 10px 0; border-width: 9px; border-radius: 16px; }
   }
 </style>
 </head>
@@ -222,7 +235,7 @@
 <div class="frame">
   <header>
     <div>
-      <div class="logo">faskat_navi</div>
+      <div class="logo">Faskat</div>
       <div class="logo-sub" data-ru="слои вайрда · личный узел проектов">layers of the wired <em>·</em> personal project node</div>
     </div>
     <div class="hud">
@@ -382,7 +395,7 @@
   </div>
 
   <footer>
-    <span>faskat_navi · v0.2</span>
+    <span>faskat · v0.3</span>
     <span class="r" data-ru="закрой эту вкладку. открой следующую.">close this tab. open the next.</span>
   </footer>
 </div>
@@ -429,7 +442,9 @@ Object.keys(UPLINKS).forEach(function (key) {
     fr.style.transform = 'scale(' + s + ')';
     fr.style.height = (screen.clientHeight / s) + 'px';
   };
-  fit(); window.addEventListener('resize', fit);
+  fit(); setTimeout(fit, 500);
+  window.addEventListener('load', fit);
+  window.addEventListener('resize', fit);
   fr.addEventListener('load', function () {
     screen.querySelectorAll('.pv, .cls, .eq-head, canvas.static').forEach(function (el) {
       el.style.display = 'none';
@@ -691,20 +706,40 @@ var REI_MARI = [
     bands = bands.map(function (v) { return Math.max(0.05, Math.min(v + (Math.random() - 0.5) * 0.3, 1)); });
     frame();
   }
+  var shell = document.getElementById('rei-shell');
+  var host = shell.parentElement;
+
+  /* fit the 84x52 console into whatever screen size the card has */
+  function fitRei() {
+    if (jack.classList.contains('el')) return;
+    shell.style.transform = 'none';
+    var w = pre.offsetWidth, h = pre.offsetHeight;
+    if (!w || !h) return;
+    var s = Math.min(host.clientWidth / w, host.clientHeight / h);
+    shell.style.transform = 'scale(' + s + ')';
+  }
+
   frame();
+  fitRei();
+  setTimeout(fitRei, 350);
+  window.addEventListener('load', fitRei);
+  window.addEventListener('resize', fitRei);
   if (!reduced) setInterval(tickSim, 240);
 
   /* click card screen → enlarge in jack modal */
-  var shell = document.getElementById('rei-shell');
-  var host = shell.parentElement;
   document.getElementById('rei-screen').addEventListener('click', function () {
     document.getElementById('jack-title').textContent = 'uplink // reisync — eva-08 live demo';
     document.getElementById('jack-el').appendChild(shell);
+    shell.style.transform = 'none';
     jack.classList.add('open');
     jack.classList.add('el');
   });
   window.reiRestore = function () {
-    if (jack.classList.contains('el')) { host.appendChild(shell); jack.classList.remove('el'); }
+    if (jack.classList.contains('el')) {
+      host.appendChild(shell);
+      jack.classList.remove('el');
+      fitRei();
+    }
   };
 })();
 
@@ -732,7 +767,7 @@ tick(); setInterval(tick, 1000);
 
 /* boot */
 var lines = [
-  'navi v0.2 — faskat node',
+  'faskat // navi v0.3',
   '> connecting to the wired ……… ok',
   '> protocol 7 handshake ………… ok',
   '> scanning layers: 5 of 6 online',
