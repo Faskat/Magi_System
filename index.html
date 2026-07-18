@@ -199,8 +199,8 @@
   .rei-mid { display: flex; align-items: center; flex: 1; min-height: 0; overflow: hidden; }
   .rei-lyrbox { flex: 1; text-align: center; padding: 0 24px; min-width: 0; }
   .rei-ctx { font-size: 12px; color: #6c6c6c; min-height: 17px; letter-spacing: .06em; }
-  #rei-cur { font-weight: 700; font-size: 30px; line-height: 1.25; color: #ffd7ff;
-    margin: 12px 0; letter-spacing: .03em; }
+  #rei-cur { font-family: inherit; font-weight: 400; font-size: 26px; line-height: 1.3;
+    color: #ffd7ff; margin: 12px 0; letter-spacing: .06em; min-height: 34px; }
   .rei-maribox { text-align: center; padding: 0 6px 0 10px;
     display: flex; flex-direction: column; justify-content: center; }
   #rei-cap { font-size: 10px; letter-spacing: .14em; color: #d7afff; margin-top: 8px; }
@@ -819,6 +819,8 @@ var REI_MARI = [
     }
     bands = bands.map(function (v) { return Math.max(0.05, Math.min(v + (Math.random() - 0.5) * 0.3, 1)); });
     frame();
+    var box = jack.classList.contains('el') ? document.getElementById('jack-el') : host;
+    if (box.clientWidth && Math.abs(shell.getBoundingClientRect().width - box.clientWidth) > 4) fitRei();
   }
 
   buildTitle(REI_TRACKS[0]);
@@ -831,10 +833,31 @@ var REI_MARI = [
   var reduced2 = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduced2) setInterval(tickSim, 240);
 
+  /* optional looping video of the real app: drop reisync.mp4 (or .webm)
+     into the site root and the card switches to it automatically */
+  var screenEl = document.getElementById('rei-screen');
+  var vid = document.createElement('video');
+  vid.muted = true; vid.loop = true; vid.autoplay = true; vid.playsInline = true;
+  vid.setAttribute('aria-label', 'reisync app recording');
+  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;';
+  var reiVideoOn = false;
+  vid.addEventListener('loadeddata', function () {
+    reiVideoOn = true;
+    vid.style.display = 'block';
+    host.style.display = 'none';
+  });
+  vid.addEventListener('error', function () {
+    if (vid.getAttribute('src') === 'reisync.mp4') vid.src = 'reisync.webm';
+  });
+  vid.src = 'reisync.mp4';
+  screenEl.appendChild(vid);
+
   /* click card screen → enlarge in jack modal */
-  document.getElementById('rei-screen').addEventListener('click', function () {
+  screenEl.addEventListener('click', function () {
     document.getElementById('jack-title').textContent = 'uplink // reisync — eva-08 live demo';
-    document.getElementById('jack-el').appendChild(shell);
+    var jel = document.getElementById('jack-el');
+    if (reiVideoOn) { jel.appendChild(vid); vid.style.objectFit = 'contain'; }
+    else jel.appendChild(shell);
     jack.classList.add('open');
     jack.classList.add('el');
     fitRei();
@@ -842,7 +865,8 @@ var REI_MARI = [
   });
   window.reiRestore = function () {
     if (jack.classList.contains('el')) {
-      host.appendChild(shell);
+      if (reiVideoOn) { screenEl.appendChild(vid); vid.style.objectFit = 'cover'; }
+      else host.appendChild(shell);
       jack.classList.remove('el');
       fitRei();
     }
