@@ -23,19 +23,21 @@
     --mono: "Courier New", "Cascadia Mono", Consolas, monospace;
   }
   :root[data-theme="light"] {
-    --bg: #e9e4d8;
-    --panel: #f1ede2;
-    --panel-2: #e2dccb;
-    --line: #c6bda9;
-    --line-hot: #a3977e;
-    --red: #b02026;
-    --red-hot: #cf1f2b;
-    --green: #47703c;
-    --phos: #33604a;
-    --text: #33302a;
-    --dim: #7d7565;
-    --strong: #17130e;
+    --bg: #f3f3f0;
+    --panel: #fcfcfa;
+    --panel-2: #ebebe6;
+    --line: #dddad2;
+    --line-hot: #b9b6ab;
+    --red: #c22730;
+    --red-hot: #d92832;
+    --green: #43714b;
+    --phos: #2e6d5c;
+    --text: #2b2a27;
+    --dim: #8b887e;
+    --strong: #121110;
   }
+  :root[data-theme="light"] .crt { opacity: .3; }
+  :root[data-theme="light"] .vign { opacity: .25; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { background: var(--bg); scrollbar-color: var(--line-hot) var(--bg); scrollbar-width: thin; }
   body {
@@ -101,12 +103,7 @@
   /* layer grid */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr)); gap: 28px; }
   .layer { background: var(--panel); border: 1px solid var(--line); position: relative; transition: border-color .15s; }
-  .layer:hover { border-color: var(--red); }
-  .layer:hover .glitchbar { opacity: 1; }
-  .glitchbar { position: absolute; left: 0; right: 0; top: 34%; height: 2px; background: var(--red-hot);
-    opacity: 0; pointer-events: none; z-index: 3; }
-  .layer:hover .glitchbar { animation: gj 2.4s steps(6) infinite; }
-  @keyframes gj { 0%{top:12%} 20%{top:64%} 40%{top:30%} 60%{top:81%} 80%{top:47%} 100%{top:12%} }
+  .layer:hover { border-color: var(--line-hot); }
 
   .layer-top { display: flex; justify-content: space-between; padding: 7px 12px;
     border-bottom: 1px solid var(--line); font-size: 11px; letter-spacing: .18em;
@@ -116,29 +113,21 @@
   .st-dev { color: #c9a15a; }
   .st-off { color: var(--red-hot); }
 
-  /* screens styled as soviet CRT TV sets: lacquered wood cabinet,
-     cream trim, bulging rounded glass */
+  /* screens: clean dark CRT bezel */
   .screen { position: relative; height: 300px; background: #060505; overflow: hidden;
-    margin: 18px 18px 0; border-radius: 22px;
-    border: 14px solid transparent;
-    border-image: repeating-linear-gradient(93deg,
-      #52351b 0 7px, #3e2812 7px 10px, #5d3e20 10px 16px,
-      #462d15 16px 19px, #56391d 19px 26px) 14;
-    box-shadow:
-      0 10px 26px rgba(0,0,0,.55),
-      inset 0 0 0 3px #d8c9a3,
-      inset 0 0 0 5px #1a120a,
-      inset 0 0 34px rgba(0,0,0,.9);
+    margin: 14px 14px 0; border-radius: 12px;
+    border: 7px solid #161616;
+    outline: 1px solid #2a2a2a;
+    box-shadow: 0 5px 16px rgba(0,0,0,.4), inset 0 0 0 1px #000, inset 0 0 28px rgba(0,0,0,.7);
   }
-  :root[data-theme="light"] .screen { box-shadow: 0 10px 26px rgba(60,40,20,.35),
-    inset 0 0 0 3px #d8c9a3, inset 0 0 0 5px #1a120a, inset 0 0 34px rgba(0,0,0,.9); }
-  .screen::after { content: ""; position: absolute; inset: 3px; z-index: 4; pointer-events: none;
-    border-radius: 26px / 32px;
+  :root[data-theme="light"] .screen { outline-color: #c9c6bc;
+    box-shadow: 0 5px 16px rgba(40,38,30,.25), inset 0 0 0 1px #000, inset 0 0 28px rgba(0,0,0,.7); }
+  .screen::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    border-radius: 6px;
     background:
-      radial-gradient(ellipse 130% 120% at center, transparent 52%, rgba(0,0,0,.62) 96%),
-      radial-gradient(ellipse 90% 40% at 50% -6%, rgba(255,255,255,.13), transparent 60%),
-      linear-gradient(112deg, rgba(255,255,255,.09) 0%, rgba(255,255,255,.02) 15%, transparent 28%),
-      repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
+      radial-gradient(ellipse 140% 130% at center, transparent 62%, rgba(0,0,0,.42) 100%),
+      linear-gradient(112deg, rgba(255,255,255,.06) 0%, transparent 22%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.10) 0 1px, transparent 1px 3px); }
   .screen iframe {
     width: 1280px; height: 800px; border: 0; transform-origin: 0 0;
     position: absolute; top: 0; left: 0; pointer-events: none; background: #fff;
@@ -235,7 +224,7 @@
   footer .r { color: var(--red); }
 
   /* jack-in modal */
-  #jack { position: fixed; inset: 0; z-index: 55; background: rgba(5,4,4,.92); display: none;
+  #jack { position: fixed; inset: 0; z-index: 55; background: rgba(6,5,5,.98); display: none;
     flex-direction: column; padding: 3vh 4vw; }
   #jack.open { display: flex; }
   #jack .jbar { display: flex; justify-content: space-between; align-items: center;
@@ -272,7 +261,7 @@
         <button class="langbtn" id="theme" aria-label="switch theme">[dark]</button>
         <button class="langbtn" id="lang" aria-label="switch language">[<b>en</b>/ru]</button>
       </span>
-      <div><span data-ru="слоёв на связи">layers online</span>: <b>5</b>/6 · <span id="clock">--:--:--</span></div>
+      <div><span data-ru="слоёв в сети">layers online</span>: <b>5</b>/6 · <span id="clock">--:--:--</span></div>
     </div>
   </header>
 
@@ -286,7 +275,6 @@
   <div class="grid">
 
     <article class="layer" data-uplink="hidden_liders">
-      <div class="glitchbar"></div>
       <div class="layer-top"><span class="id">layer:01</span><span class="st-on" data-ru="онлайн">online</span></div>
       <div class="screen">
         <div class="pv pv-table">
@@ -307,7 +295,6 @@
     </article>
 
     <article class="layer" data-uplink="lainwave">
-      <div class="glitchbar"></div>
       <div class="layer-top"><span class="id">layer:02</span><span class="st-on" data-ru="онлайн">online</span></div>
       <div class="screen">
         <div class="eq-head"><span>sound.log // top tracks</span><span>theme: lain</span></div>
@@ -327,8 +314,7 @@
     </article>
 
     <article class="layer">
-      <div class="glitchbar"></div>
-      <div class="layer-top"><span class="id">layer:03</span><span class="st-on" data-ru="демо · вживую">live demo</span></div>
+      <div class="layer-top"><span class="id">layer:03</span><span class="st-on" data-ru="живая демка">live demo</span></div>
       <div class="screen" id="rei-screen">
         <div class="rei-host" title="reisync — click to enlarge">
           <div class="rei-shell" id="rei-shell"><pre class="rei-pre" id="rei-pre" aria-label="reisync console demo, EVA-08 theme"></pre></div>
@@ -346,7 +332,6 @@
     </article>
 
     <article class="layer" data-uplink="bunny_part">
-      <div class="glitchbar"></div>
       <div class="layer-top"><span class="id">layer:04</span><span class="st-on" data-ru="онлайн">online</span></div>
       <div class="screen">
         <div class="pv pv-noise" data-ru="ожидание сигнала">awaiting uplink</div>
@@ -366,22 +351,20 @@
     </article>
 
     <article class="layer">
-      <div class="glitchbar"></div>
-      <div class="layer-top"><span class="id">layer:05</span><span class="st-dev" data-ru="испытания">field test</span></div>
+      <div class="layer-top"><span class="id">layer:05</span><span class="st-dev" data-ru="полевые испытания">field test</span></div>
       <div class="screen">
         <div class="pv"><div class="pv-map" id="map"></div></div>
         <div class="shade"></div>
       </div>
       <div class="layer-body">
-        <h3>WorldEditor<span class="jp">世界編集</span></h3>
+        <h3>Terraformer<span class="jp">テラフォーマー</span></h3>
         <p data-ru="Редактор миров Minecraft: карта чанков, поиск «дыр», генерация регионов.">Minecraft world editor: chunk map, hole detection, region generation.</p>
         <div class="chips"><i data-ru="локальный">local build</i><i>nbt</i><i>1.21.4</i></div>
-        <div class="acts"><span class="btn ghost" data-ru="не в сети — локальная сборка">offline — local build</span></div>
+        <div class="acts"><span class="btn ghost" data-ru="офлайн · локальная сборка">offline — local build</span></div>
       </div>
     </article>
 
     <article class="layer">
-      <div class="glitchbar"></div>
       <div class="layer-top"><span class="id">layer:06</span><span class="st-off" data-ru="нет сигнала">no carrier</span></div>
       <div class="screen">
         <div class="pv pv-noise">no carrier</div>
@@ -612,7 +595,7 @@ var REI_MARI = [
   var UI = '#ff87d7', UI_DIM = '#af5f87', UI_ACC = '#ffafd7';
   var A = '#af5fff', A_DIM = '#875faf', A_BR = '#d7afff';
   var LYR = '#ffd7ff', GRAY = '#6c6c6c', HDR = '#d75f87';
-  var W = 84, H = 52, SPEC_H = 9;
+  var W = 84, ZONE = 31, SPEC_H = 9;
   var EQC = ' ▁▂▃▄▅▆▇█';
   var CHAR_W = 0;
   REI_MARI.forEach(function (l) { if (l.length > CHAR_W) CHAR_W = l.length; });
@@ -656,6 +639,47 @@ var REI_MARI = [
   for (var bi = 0; bi < 10; bi++) bands.push(0.3 + Math.random() * 0.5);
   var ti = 0, pos = 0, last = Date.now();
 
+  /* live subtitles: synced lyrics fetched from lrclib at runtime,
+     exactly like the real app does */
+  var TS_RE = /^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/;
+  function parseSynced(s) {
+    var out = [];
+    s.split('\n').forEach(function (raw) {
+      var m = TS_RE.exec(raw.trim());
+      if (m) out.push([parseInt(m[1], 10) * 60 + parseFloat(m[2]), m[3].trim()]);
+    });
+    out.sort(function (a, b) { return a[0] - b[0]; });
+    return out.length ? out : null;
+  }
+  function loadLyrics(tr) {
+    if (tr.lines !== undefined) return;
+    tr.lines = null;
+    fetch('https://lrclib.net/api/search?q=' + encodeURIComponent(tr.t))
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        if (!Array.isArray(list)) throw new Error('lrclib busy');
+        var synced = list.filter(function (x) { return x.syncedLyrics; });
+        var exact = synced.filter(function (x) {
+          return (x.trackName || '').toLowerCase() === tr.t.toLowerCase();
+        });
+        var hit = exact[0] || synced[0];
+        if (hit) {
+          tr.lines = parseSynced(hit.syncedLyrics);
+          if (hit.duration) tr.len = Math.round(hit.duration);
+        }
+      }).catch(function () {
+        delete tr.lines;
+        setTimeout(function () { loadLyrics(tr); }, 60000);
+      });
+  }
+  REI_TRACKS.forEach(loadLyrics);
+  function lyricIndex(tr, p) {
+    if (!tr.lines) return null;
+    var idx = null;
+    for (var i = 0; i < tr.lines.length; i++) { if (tr.lines[i][0] <= p) idx = i; else break; }
+    return idx;
+  }
+
   function frame() {
     var now = Date.now() / 1000;
     var tr = REI_TRACKS[ti];
@@ -674,25 +698,42 @@ var REI_MARI = [
     top.forEach(function (l) { lines.push(l); });
     lines.push(sp(UI_DIM, '─'.repeat(W - 1)));
 
-    /* middle zone: spectrum left, MARI right */
-    var zone = Math.max(H - 5 - top.length - 1, REI_MARI.length + 2);
+    /* middle zone: lyric line (when synced text is loaded) or spectrum
+       on the left, MARI on the right */
+    var H = 6 + top.length + ZONE;
+    var zone = ZONE;
     var reiOff = Math.max(Math.floor((zone - REI_MARI.length) / 2), 0);
     var mid = [];
-    var slabel = 'AUDIO SPECTRUM ANALYSIS';
-    mid.push(sp(A_DIM, ' '.repeat(Math.max(Math.floor((LEFT_W - slabel.length) / 2), 0)) + slabel));
-    mid.push('');
-    var nB = Math.max(Math.floor((LEFT_W - 4) / 3), 1);
-    var sPad = ' '.repeat(Math.max(Math.floor((LEFT_W - nB * 3) / 2), 0));
-    for (var r = 0; r < SPEC_H; r++) {
-      var thr = SPEC_H - r;
-      var col = grad3(A_DIM, A, A_BR, 1 - r / (SPEC_H - 1));
-      var cells = '';
-      for (var b2 = 0; b2 < nB; b2++) {
-        var v = bands[Math.floor(b2 * bands.length / nB)] * SPEC_H * 1.3;
-        var ch2 = v >= thr ? '██' : (v > thr - 1 ? EQC[Math.min(Math.floor((v - (thr - 1)) * 8) + 1, 8)].repeat(2) : '  ');
-        cells += ch2 + ' ';
+    var li = lyricIndex(tr, pos);
+    if (li !== null) {
+      var cline = function (txt, col) {
+        if (!txt) return '';
+        if (txt.length > LEFT_W - 2) txt = txt.slice(0, LEFT_W - 3) + '…';
+        return sp(col, ' '.repeat(Math.max(Math.floor((LEFT_W - txt.length) / 2), 0)) + txt);
+      };
+      var curL = tr.lines[li][1];
+      mid.push(li > 0 ? cline(tr.lines[li - 1][1], GRAY) : '');
+      mid.push('');
+      mid.push(cline(curL ? '♪ ' + curL : '···', LYR));
+      mid.push('');
+      mid.push(li + 1 < tr.lines.length ? cline(tr.lines[li + 1][1], GRAY) : '');
+    } else {
+      var slabel = 'AUDIO SPECTRUM ANALYSIS';
+      mid.push(sp(A_DIM, ' '.repeat(Math.max(Math.floor((LEFT_W - slabel.length) / 2), 0)) + slabel));
+      mid.push('');
+      var nB = Math.max(Math.floor((LEFT_W - 4) / 3), 1);
+      var sPad = ' '.repeat(Math.max(Math.floor((LEFT_W - nB * 3) / 2), 0));
+      for (var r = 0; r < SPEC_H; r++) {
+        var thr = SPEC_H - r;
+        var col = grad3(A_DIM, A, A_BR, 1 - r / (SPEC_H - 1));
+        var cells = '';
+        for (var b2 = 0; b2 < nB; b2++) {
+          var v = bands[Math.floor(b2 * bands.length / nB)] * SPEC_H * 1.3;
+          var ch2 = v >= thr ? '██' : (v > thr - 1 ? EQC[Math.min(Math.floor((v - (thr - 1)) * 8) + 1, 8)].repeat(2) : '  ');
+          cells += ch2 + ' ';
+        }
+        mid.push('<span style="color:' + col + '">' + sPad + cells + '</span>');
       }
-      mid.push('<span style="color:' + col + '">' + sPad + cells + '</span>');
     }
     var midOff = Math.max(Math.floor((zone - mid.length) / 2), 0);
     for (var i = 0; i < zone && lines.length < H - 4; i++) {
@@ -719,11 +760,12 @@ var REI_MARI = [
     var sync = Math.max(0, Math.min(40 + 0.55 * 55 + 4 * Math.sin(now * 1.3), 99.9));
     var sep = sp(UI_DIM, ' ▌ ');
     lines.push(' ' + sp(UI_ACC, 'SYNC RATE: ' + sync.toFixed(1) + '%') + sep +
-      sp(UI, 'PATTERN: ORANGE') + sep + sp(GRAY, 'A.T. FIELD: NOMINAL') + sep + sp(LYR, 'UNIT-08: ACTIVE'));
+      (li !== null ? sp(A_BR, 'PATTERN: BLUE') : sp(UI, 'PATTERN: ORANGE')) + sep +
+      sp(GRAY, 'A.T. FIELD: NOMINAL') + sep + sp(LYR, 'UNIT-08: ACTIVE'));
     var eq = '';
     for (var x = 0; x < W - 2; x++) {
       var bv = bands[Math.floor(x / (W - 2) * bands.length)];
-      var vv = Math.max(0, Math.min(bv * (0.55 + 0.45 * Math.sin(x * 0.37 + now * 3)), 1));
+      var vv = Math.max(0.1, Math.min(bv * (0.6 + 0.55 * Math.abs(Math.sin(x * 0.37 + now * 3))), 1));
       var cc = vv < 0.4 ? UI_DIM : (vv < 0.75 ? UI : UI_ACC);
       eq += sp(cc, EQC[Math.round(vv * 8)]);
     }
@@ -734,9 +776,12 @@ var REI_MARI = [
 
   function tickSim() {
     var dt = (Date.now() - last) / 1000; last = Date.now();
-    pos += dt * 6;
+    pos += dt;
     var tr = REI_TRACKS[ti];
-    if (pos >= tr.len) { pos = 0; ti = (ti + 1) % REI_TRACKS.length; }
+    if (pos >= tr.len) {
+      pos = 0; ti = (ti + 1) % REI_TRACKS.length;
+      setTimeout(fitRei, 50);
+    }
     bands = bands.map(function (v) { return Math.max(0.05, Math.min(v + (Math.random() - 0.5) * 0.3, 1)); });
     frame();
   }
