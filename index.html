@@ -157,21 +157,18 @@
     color: var(--red-hot); letter-spacing: .34em; font-size: 12px; }
   canvas.static { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .14; }
 
-  /* reisync live demo */
-  .rei { position: absolute; inset: 0; background: #0b0709; display: flex; flex-direction: column; }
-  .rei-bar { display: flex; justify-content: space-between; padding: 5px 10px; font-size: 10px;
-    letter-spacing: .18em; color: var(--pink); border-bottom: 1px solid #2b1620; }
-  .rei-bar .theme { color: var(--lime); }
-  .rei-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; }
-  .rei-title { font-weight: 700; color: var(--pink); text-transform: lowercase; letter-spacing: .08em;
-    text-align: center; font-size: 19px; line-height: 1.25; text-wrap: balance; transition: opacity .25s; }
-  .rei-sub { font-size: 10px; letter-spacing: .26em; color: #8a5a6d; text-transform: lowercase; }
-  .rei-wave { display: flex; align-items: flex-end; gap: 3px; height: 30px; }
-  .rei-wave i { width: 4px; background: var(--lime); opacity: .75; transition: height .18s; }
-  .rei-foot { padding: 6px 10px 8px; font-size: 10px; color: #8a5a6d; letter-spacing: .12em; }
-  .rei-prog { height: 3px; background: #2b1620; margin: 0 10px 6px; }
-  .rei-prog i { display: block; height: 100%; width: 0%; background: var(--pink); transition: width .5s linear; }
-  .rei-log { font-size: 10px; color: var(--lime); opacity: .8; height: 15px; overflow: hidden; }
+  /* reisync live demo — faithful console replica */
+  .rei-host { display: flex; justify-content: center; height: 100%; overflow: hidden;
+    background: #050505; cursor: pointer; }
+  .rei-shell { transform: scale(.35); transform-origin: top center; }
+  .rei-pre { font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    font-size: 10px; line-height: 11px; color: #bbb; margin: 0; white-space: pre; }
+  #jack .jel { flex: 1; overflow: auto; display: none; background: #050505;
+    border: 1px solid var(--line-hot); padding: 10px; }
+  #jack.el .jel { display: block; }
+  #jack.el iframe { display: none; }
+  #jack .jel .rei-shell { transform: none; }
+  #jack .jel .rei-pre { font-size: 13px; line-height: 14px; }
 
   /* profile */
   .prof { border: 1px solid var(--line); background: var(--panel); padding: 20px;
@@ -264,7 +261,7 @@
       </div>
     </article>
 
-    <article class="layer">
+    <article class="layer" data-uplink="lainwave">
       <div class="glitchbar"></div>
       <div class="layer-top"><span class="id">layer:02</span><span class="st-on" data-ru="онлайн">online</span></div>
       <div class="screen">
@@ -277,26 +274,19 @@
         <h3>lainwave<span class="jp">音の記録</span></h3>
         <p data-ru="Spotify-дашборд в стиле киберпанк-терминала: статистика, жанры, Wrapped. 5 тем, включая Lain.">Cyberpunk-terminal Spotify dashboard: stats, genres, Wrapped. 5 themes incl. Lain.</p>
         <div class="chips"><i>python</i><i>spotify api</i><i>5 themes</i></div>
-        <div class="acts"><span class="btn lock" data-ru="код · закрыт">code · sealed</span></div>
+        <div class="acts">
+          <a class="btn" href="https://web-production-19abe.up.railway.app" target="_blank" rel="noopener" data-ru="открыть">open</a>
+          <span class="btn lock" data-ru="код · закрыт">code · sealed</span>
+        </div>
       </div>
     </article>
 
     <article class="layer">
       <div class="glitchbar"></div>
       <div class="layer-top"><span class="id">layer:03</span><span class="st-on" data-ru="демо · вживую">live demo</span></div>
-      <div class="screen">
-        <div class="rei" id="rei">
-          <div class="rei-bar">
-            <span>reisync.exe — spotify uplink</span>
-            <span class="theme">theme: eva-08</span>
-          </div>
-          <div class="rei-main">
-            <div class="rei-sub" data-ru="сейчас играет">now playing</div>
-            <div class="rei-title" id="rei-title">why she always fucking talking</div>
-            <div class="rei-wave" id="rei-wave"></div>
-          </div>
-          <div class="rei-prog"><i id="rei-prog"></i></div>
-          <div class="rei-foot"><span class="rei-log" id="rei-log">spotify: track detected</span></div>
+      <div class="screen" id="rei-screen">
+        <div class="rei-host" title="reisync — click to enlarge">
+          <div class="rei-shell" id="rei-shell"><pre class="rei-pre" id="rei-pre" aria-label="reisync console demo, EVA-08 theme"></pre></div>
         </div>
       </div>
       <div class="layer-body">
@@ -403,6 +393,7 @@
     <button class="btn ghost" id="jack-close" data-ru="разорвать соединение">disconnect</button>
   </div>
   <iframe id="jack-frame" title="live site"></iframe>
+  <div class="jel" id="jack-el"></div>
 </div>
 
 <script>
@@ -411,7 +402,8 @@
 var LOCAL = ['localhost', '127.0.0.1'].indexOf(location.hostname) !== -1;
 var UPLINK_CONF = {
   hidden_liders: { pub: "", local: "http://localhost:3000" },
-  bunny_part: { pub: "", local: "http://localhost:8877" }
+  bunny_part: { pub: "https://bunnypart-production.up.railway.app", local: "http://localhost:8877" },
+  lainwave: { pub: "https://web-production-19abe.up.railway.app", local: "http://localhost:8888" }
 };
 var UPLINKS = {};
 Object.keys(UPLINK_CONF).forEach(function (k) {
@@ -438,7 +430,11 @@ Object.keys(UPLINKS).forEach(function (key) {
     fr.style.height = (screen.clientHeight / s) + 'px';
   };
   fit(); window.addEventListener('resize', fit);
-  fr.addEventListener('load', function () { if (mock) mock.style.display = 'none'; });
+  fr.addEventListener('load', function () {
+    screen.querySelectorAll('.pv, .cls, .eq-head, canvas.static').forEach(function (el) {
+      el.style.display = 'none';
+    });
+  });
   screen.style.cursor = 'pointer';
   screen.addEventListener('click', function () { jackIn(key, url); });
   var open = card.querySelector('.acts .btn');
@@ -454,6 +450,7 @@ function jackIn(name, url) {
 document.getElementById('jack-close').addEventListener('click', function () {
   jack.classList.remove('open');
   document.getElementById('jack-frame').src = 'about:blank';
+  if (window.reiRestore) window.reiRestore();
 });
 
 /* static noise canvases */
@@ -487,56 +484,229 @@ if (map) for (var m = 0; m < 66; m++) {
   map.appendChild(c);
 }
 
-/* reisync live demo — cycles real track titles, no lyrics shown */
-var TRACKS = [
-  { t: "why she always fucking talking", len: 134 },
-  { t: "don't wanna die", len: 118 },
-  { t: "keepsecrets", len: 151 }
-];
-var LOGS = [
-  "spotify: track detected",
-  "lrclib: lyrics found — syncing…",
-  "sync: locked ±20ms",
-  "render: ascii @ 30fps"
-];
-var LOGS_RU = [
-  "spotify: трек обнаружен",
-  "lrclib: текст найден — синхронизация…",
-  "синхронизация: захват ±20мс",
-  "рендер: ascii @ 30fps"
-];
-var wave = document.getElementById('rei-wave');
-var bars = [];
-if (wave) for (var w = 0; w < 24; w++) {
-  var v = document.createElement('i'); v.style.height = '4px';
-  wave.appendChild(v); bars.push(v);
-}
-var reiTitle = document.getElementById('rei-title');
-var reiProg = document.getElementById('rei-prog');
-var reiLog = document.getElementById('rei-log');
-var ti = 0, elapsed = 0, li = 0;
+/* reisync — faithful replica of the real console app (theme eva-08),
+   looping 3 tracks. Art + figlet titles generated by the actual app assets
+   (theme_arts.MARI, pyfiglet mono9/smmono9). No lyrics are shown — the
+   replica runs in the app's real spectrum-analysis mode. */
 var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-if (!reduced && reiTitle) {
-  setInterval(function () {
-    bars.forEach(function (b, i) {
-      b.style.height = (3 + Math.abs(Math.sin(Date.now() / 300 + i * 0.6)) * 26 * Math.random()) + 'px';
-    });
-  }, 180);
-  setInterval(function () {
-    elapsed += 1;
-    var tr = TRACKS[ti];
-    reiProg.style.width = Math.min(100, elapsed / tr.len * 100 * 14) + '%';
-    if (elapsed % 2 === 0) {
-      li = (li + 1) % LOGS.length;
-      reiLog.textContent = (LANG === 'ru' ? LOGS_RU : LOGS)[li];
+
+var REI_TRACKS = [
+  { t: "why she always fucking talking", len: 134, art: [
+"    ▐               ▐               ▝▜",
+"▖  ▖▐▗▖ ▗ ▗      ▄▖ ▐▗▖  ▄▖      ▄▖  ▐  ▖  ▖ ▄▖ ▗ ▗  ▄▖",
+"▚▗▗▘▐▘▐ ▝▖▞     ▐ ▝ ▐▘▐ ▐▘▐     ▝ ▐  ▐  ▚▗▗▘▝ ▐ ▝▖▞ ▐ ▝",
+"▐▟▟ ▐ ▐  ▙▌      ▀▚ ▐ ▐ ▐▀▀     ▗▀▜  ▐  ▐▟▟ ▗▀▜  ▙▌  ▀▚",
+" ▌▌ ▐ ▐  ▜      ▝▄▞ ▐ ▐ ▝▙▞     ▝▄▜  ▝▄  ▌▌ ▝▄▜  ▜  ▝▄▞",
+"         ▞                                       ▞",
+"        ▝▘                                      ▝▘",
+"",
+" ▗▀         ▐    ▝               ▗      ▝▜  ▐    ▝",
+"▗▟▄ ▗ ▗  ▄▖ ▐ ▗ ▗▄  ▗▗▖  ▄▄     ▗▟▄  ▄▖  ▐  ▐ ▗ ▗▄  ▗▗▖  ▄▄",
+" ▐  ▐ ▐ ▐▘▝ ▐▗▘  ▐  ▐▘▐ ▐▘▜      ▐  ▝ ▐  ▐  ▐▗▘  ▐  ▐▘▐ ▐▘▜",
+" ▐  ▐ ▐ ▐   ▐▜   ▐  ▐ ▐ ▐ ▐      ▐  ▗▀▜  ▐  ▐▜   ▐  ▐ ▐ ▐ ▐"
+  ] },
+  { t: "don't wanna die", len: 118, art: [
+"  ▐          ▗   ▗                                ▐  ▝",
+" ▄▟  ▄▖ ▗▗▖  ▐  ▗▟▄     ▖  ▖ ▄▖ ▗▗▖ ▗▗▖  ▄▖      ▄▟ ▗▄   ▄▖",
+"▐▘▜ ▐▘▜ ▐▘▐      ▐      ▚▗▗▘▝ ▐ ▐▘▐ ▐▘▐ ▝ ▐     ▐▘▜  ▐  ▐▘▐",
+"▐ ▐ ▐ ▐ ▐ ▐      ▐      ▐▟▟ ▗▀▜ ▐ ▐ ▐ ▐ ▗▀▜     ▐ ▐  ▐  ▐▀▀",
+"▝▙█ ▝▙▛ ▐ ▐      ▝▄      ▌▌ ▝▄▜ ▐ ▐ ▐ ▐ ▝▄▜     ▝▙█ ▗▟▄ ▝▙▞"
+  ] },
+  { t: "keepsecrets", len: 151, art: [
+" █                                                                ▄",
+" █   ▄   ▄▄▄    ▄▄▄   ▄▄▄▄    ▄▄▄    ▄▄▄    ▄▄▄    ▄ ▄▄   ▄▄▄   ▄▄█▄▄   ▄▄▄",
+" █ ▄▀   █▀  █  █▀  █  █▀ ▀█  █   ▀  █▀  █  █▀  ▀   █▀  ▀ █▀  █    █    █   ▀",
+" █▀█    █▀▀▀▀  █▀▀▀▀  █   █   ▀▀▀▄  █▀▀▀▀  █       █     █▀▀▀▀    █     ▀▀▀▄",
+" █  ▀▄  ▀█▄▄▀  ▀█▄▄▀  ██▄█▀  ▀▄▄▄▀  ▀█▄▄▀  ▀█▄▄▀   █     ▀█▄▄▀    ▀▄▄  ▀▄▄▄▀",
+"                      █",
+"                      ▀"
+  ] }
+];
+
+var REI_MARI = [
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⣀⣀⡀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣶⣿⣿⣿⣿⣿⣿⡯⡐⢬⣼⣆⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⡿⠋⠙⢻⣷⣾⣿⣿⣿⡱⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⣀⠀⣀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣃⣀⡀⠺⣿⣿⣿⣿⣿⡇⣹⣷⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠘⢰⢨⢡⡅⠃⡆⠀⢰⣿⣿⣿⡟⣿⣿⣿⣾⢲⣶⡆⣿⣿⣿⣷⣿⡇⡆⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠸⣣⡏⠢⢌⡱⠠⢍⢺⣿⢸⣿⠓⡏⢻⣿⠤⠬⠟⢇⢸⣿⣿⣿⣿⣇⠒⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠸⣿⣷⡂⠴⡉⠆⣆⠩⢛⡟⠃⠀⠈⠻⠀⠀⢠⢾⢸⣿⣿⣿⣽⣿⠒⢬⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠈⠹⣿⣿⣶⣵⣌⡤⢃⣱⣇⠑⠒⠊⠈⠀⠈⠁⢸⢸⣿⣿⡿⣿⣿⠘⠤⣅⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⡱⠻⣯⠀⠀⠀⠀⠀⢀⢠⡿⡏⣿⣿⣿⣿⣿⢈⡱⠰⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣷⡡⣿⣶⣲⣔⣬⡀⠐⠉⣰⣇⣿⣿⣿⣽⣿⡆⠆⡍⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"         ⡻⣿⣿⣷⣽⡿⢻⠡⣼⣿⣄⣲⣫⣼⣿⣿⣿⢿⣿⢸⡔⣌⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"           ⠹⡿⣿⣿⣆⣿⣿⣿⣿⠟⣛⣫⢸⣿⣿⣿⣿⠹⣾⡻⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿⣿⣡⠟⡰⢨⣹⣿⣿⣿⣿⣷⢰⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⢿⡟⣘⣾⡠⡕⢺⡇⣿⣿⣿⣯⣿⣏⢿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣶⣿⣿⠇⣈⡷⢸⠏⣰⣾⠏⣁⣿⣿⣿⣿⣿⣿⣾⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⠿⢋⢥⢪⣿⡧⢥⢟⠫⣁⠚⣼⣿⣿⣿⣿⣿⢿⣿⢯⡳⣟⣷⣤⡀⠀⠀⠀⠀⠀⠀⠀",
+"      ⣻⡿⠛⠉⡐⠡⠎⣴⢛⠫⢓⣩⡣⠱⠒⠉⢸⣿⣿⣿⣿⣿⣿⣿⡌⣇⠙⣾⢏⣿⣒     ",
+"⠀⠀⢀⣴⣟⠏⠀⠀⢠⢁⠧⢱⢮⠒⠊⠁⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣟⣯⡿⠇⠘⡄⠈⢻⣶⢫⣟⣄⠀⠀⠀⠀",
+"⠀⣠⣿⣳⣿⠂⠀⠀⠈⢆⣼⡓⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⣿⢿⣿⣿⡧⠀⠀⠘⢄⠀⠙⣧⢻⡼⣇⠀⠀⠀",
+"⣰⠋⣿⣳⡟⠄⠀⠀⢈⣾⡝⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣻⣿⣿⠏⠂⠀⠀⠀⠈⠢⡀⠸⡹⡾⣭⣇⠀⠀",
+"⡏⠀⣯⣽⠃⠀⠐⡀⢸⡿⡣⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣻⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⡷⣹⣷⣻⠀⠀",
+"⠑⠀⢱⣫⠀⠀⠀⠛⢬⣾⠁⡠⠴⠦⠤⠴⡶⠿⠿⠟⡛⣻⣯⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⡯⣽⡛⣿⠀⠀",
+"⠀⠀⠈⠻⠆⠀⠀⡾⡕⡟⢫⠌⡱⢉⠬⡑⡰⢉⢬⣱⣾⠿⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠴⠃⡟⡼⠁⠇⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠘⣎⢯⢃⢧⡑⢌⡢⠱⠒⣉⣋⣁⣤⣤⣴⠊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⡺⠀⠈⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⢠⡘⡟⠸⣃⠼⢄⠸⣛⢛⣛⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠿⠃⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⢧⣹⡣⡐⠎⠤⠓⣄⣶⠿⠛⢉⠰⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡥⣳⢡⠊⣅⠗⢩⢀⠒⣡⠢⡑⠜⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠣⢎⡘⢌⠢⢌⠣⢄⢣⡘⠜⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠑⠈⠒⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"
+];
+
+(function () {
+  var pre = document.getElementById('rei-pre');
+  if (!pre) return;
+
+  /* eva-08 theme, exact xterm-256 colors of the real app */
+  var UI = '#ff87d7', UI_DIM = '#af5f87', UI_ACC = '#ffafd7';
+  var A = '#af5fff', A_DIM = '#875faf', A_BR = '#d7afff';
+  var LYR = '#ffd7ff', GRAY = '#6c6c6c', HDR = '#d75f87';
+  var W = 84, H = 52, SPEC_H = 9;
+  var EQC = ' ▁▂▃▄▅▆▇█';
+  var CHAR_W = 0;
+  REI_MARI.forEach(function (l) { if (l.length > CHAR_W) CHAR_W = l.length; });
+  var LEFT_W = W - CHAR_W - 4;
+
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function sp(c, t) { return t ? '<span style="color:' + c + '">' + esc(t) + '</span>' : ''; }
+  function lerp(c0, c1, t) {
+    function h(c) { return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]; }
+    var a = h(c0), b = h(c1);
+    return 'rgb(' + a.map(function (v, i) { return Math.round(v + (b[i] - v) * t); }).join(',') + ')';
+  }
+  function grad3(c0, c1, c2, t) { return t < 0.5 ? lerp(c0, c1, t * 2) : lerp(c1, c2, (t - 0.5) * 2); }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function ftime(s) { s = Math.max(0, Math.floor(s)); return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
+
+  /* MARI colored by braille dot density, like _colorize_art() */
+  function bits(ch) {
+    var c = ch.codePointAt(0);
+    if (c <= 0x2800 || c > 0x28FF) return 0;
+    c -= 0x2800; var n = 0;
+    while (c) { n += c & 1; c >>= 1; }
+    return n;
+  }
+  var MARI_HTML = REI_MARI.map(function (line) {
+    var out = '', cur = null, buf = '';
+    function flush() { if (buf) out += cur ? sp(cur, buf) : esc(buf); buf = ''; }
+    for (var ch of line) {
+      var b = bits(ch);
+      var col = b === 0 ? null : (b <= 3 ? A_DIM : (b <= 5 ? A : A_BR));
+      if (col !== cur) { flush(); cur = col; }
+      buf += ch;
     }
-    if (elapsed / tr.len * 14 >= 1) {
-      elapsed = 0; ti = (ti + 1) % TRACKS.length;
-      reiTitle.style.opacity = 0;
-      setTimeout(function () { reiTitle.textContent = TRACKS[ti].t; reiTitle.style.opacity = 1; }, 260);
+    flush();
+    return out;
+  });
+  var CAPTION = 'MAKINAMI MARI · EVA UNIT-08';
+  var CAP_HTML = ' '.repeat(Math.max(Math.floor((CHAR_W - CAPTION.length) / 2), 0)) + sp(A_BR, CAPTION);
+
+  var bands = [];
+  for (var bi = 0; bi < 10; bi++) bands.push(0.3 + Math.random() * 0.5);
+  var ti = 0, pos = 0, last = Date.now();
+
+  function frame() {
+    var now = Date.now() / 1000;
+    var tr = REI_TRACKS[ti];
+    var lines = [];
+
+    /* header band */
+    var label = ' N E R V ▸ MAGI LYRIC-SYNC SYSTEM ▸ REISYNC ';
+    var right = ' ' + (Math.floor(now * 2) % 2 ? '●' : '○') + ' SOUND ONLY ';
+    var fill = ' '.repeat(Math.max(W - label.length - right.length, 0));
+    lines.push('<span style="background:' + HDR + ';color:#000">' + esc(label + fill + right) + '</span>');
+
+    /* top zone: title as figlet art (PRIMARY) */
+    var top = [''];
+    tr.art.slice(0, 12).forEach(function (l) { top.push(sp(UI, '  ' + l)); });
+    top.push('');
+    top.forEach(function (l) { lines.push(l); });
+    lines.push(sp(UI_DIM, '─'.repeat(W - 1)));
+
+    /* middle zone: spectrum left, MARI right */
+    var zone = Math.max(H - 5 - top.length - 1, REI_MARI.length + 2);
+    var reiOff = Math.max(Math.floor((zone - REI_MARI.length) / 2), 0);
+    var mid = [];
+    var slabel = 'AUDIO SPECTRUM ANALYSIS';
+    mid.push(sp(A_DIM, ' '.repeat(Math.max(Math.floor((LEFT_W - slabel.length) / 2), 0)) + slabel));
+    mid.push('');
+    var nB = Math.max(Math.floor((LEFT_W - 4) / 3), 1);
+    var sPad = ' '.repeat(Math.max(Math.floor((LEFT_W - nB * 3) / 2), 0));
+    for (var r = 0; r < SPEC_H; r++) {
+      var thr = SPEC_H - r;
+      var col = grad3(A_DIM, A, A_BR, 1 - r / (SPEC_H - 1));
+      var cells = '';
+      for (var b2 = 0; b2 < nB; b2++) {
+        var v = bands[Math.floor(b2 * bands.length / nB)] * SPEC_H * 1.3;
+        var ch2 = v >= thr ? '██' : (v > thr - 1 ? EQC[Math.min(Math.floor((v - (thr - 1)) * 8) + 1, 8)].repeat(2) : '  ');
+        cells += ch2 + ' ';
+      }
+      mid.push('<span style="color:' + col + '">' + sPad + cells + '</span>');
     }
-  }, 1000);
-}
+    var midOff = Math.max(Math.floor((zone - mid.length) / 2), 0);
+    for (var i = 0; i < zone && lines.length < H - 4; i++) {
+      var m = i - midOff;
+      var leftRaw = (m >= 0 && m < mid.length) ? mid[m] : '';
+      var leftLen = leftRaw ? leftRaw.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').length : 0;
+      var left = leftRaw + ' '.repeat(Math.max(LEFT_W - leftLen, 0));
+      var j = i - reiOff;
+      if (j >= 0 && j < REI_MARI.length) lines.push(left + '  ' + MARI_HTML[j]);
+      else if (j === REI_MARI.length + 1) lines.push(left + '  ' + CAP_HTML);
+      else lines.push(left);
+    }
+
+    /* bottom: divider, progress, status, eq */
+    lines.push(sp(UI_DIM, '─'.repeat(W - 1)));
+    var cur = ftime(pos), dur = ftime(tr.len);
+    var barW = W - cur.length - dur.length - 6;
+    var ratio = Math.min(pos / tr.len, 1);
+    var exact = ratio * barW, filled = Math.floor(exact);
+    var partials = ' ▏▎▍▌▋▊▉';
+    var edge = filled < barW ? partials[Math.min(Math.floor((exact - filled) * 8), 7)] : '';
+    var empty = Math.max(barW - filled - (edge ? 1 : 0), 0);
+    lines.push(' ' + sp(UI_ACC, cur) + '  ' + sp(UI, '█'.repeat(filled) + edge) + sp(GRAY, '░'.repeat(empty)) + '  ' + sp(UI_ACC, dur));
+    var sync = Math.max(0, Math.min(40 + 0.55 * 55 + 4 * Math.sin(now * 1.3), 99.9));
+    var sep = sp(UI_DIM, ' ▌ ');
+    lines.push(' ' + sp(UI_ACC, 'SYNC RATE: ' + sync.toFixed(1) + '%') + sep +
+      sp(UI, 'PATTERN: ORANGE') + sep + sp(GRAY, 'A.T. FIELD: NOMINAL') + sep + sp(LYR, 'UNIT-08: ACTIVE'));
+    var eq = '';
+    for (var x = 0; x < W - 2; x++) {
+      var bv = bands[Math.floor(x / (W - 2) * bands.length)];
+      var vv = Math.max(0, Math.min(bv * (0.55 + 0.45 * Math.sin(x * 0.37 + now * 3)), 1));
+      var cc = vv < 0.4 ? UI_DIM : (vv < 0.75 ? UI : UI_ACC);
+      eq += sp(cc, EQC[Math.round(vv * 8)]);
+    }
+    lines.push(' ' + eq);
+
+    pre.innerHTML = lines.join('\n');
+  }
+
+  function tickSim() {
+    var dt = (Date.now() - last) / 1000; last = Date.now();
+    pos += dt * 6;
+    var tr = REI_TRACKS[ti];
+    if (pos >= tr.len) { pos = 0; ti = (ti + 1) % REI_TRACKS.length; }
+    bands = bands.map(function (v) { return Math.max(0.05, Math.min(v + (Math.random() - 0.5) * 0.3, 1)); });
+    frame();
+  }
+  frame();
+  if (!reduced) setInterval(tickSim, 240);
+
+  /* click card screen → enlarge in jack modal */
+  var shell = document.getElementById('rei-shell');
+  var host = shell.parentElement;
+  document.getElementById('rei-screen').addEventListener('click', function () {
+    document.getElementById('jack-title').textContent = 'uplink // reisync — eva-08 live demo';
+    document.getElementById('jack-el').appendChild(shell);
+    jack.classList.add('open');
+    jack.classList.add('el');
+  });
+  window.reiRestore = function () {
+    if (jack.classList.contains('el')) { host.appendChild(shell); jack.classList.remove('el'); }
+  };
+})();
 
 /* language toggle en <-> ru */
 var LANG = 'en';
