@@ -191,9 +191,20 @@
   /* reisync live demo — faithful console replica */
   .rei-host { display: flex; justify-content: center; align-items: center; height: 100%;
     overflow: hidden; background: #050505; cursor: pointer; }
-  .rei-shell { transform-origin: center center; }
-  .rei-pre { font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
-    font-size: 10px; line-height: 11px; color: #bbb; margin: 0; white-space: pre; }
+  .rei-shell { transform-origin: center center; width: max-content; background: #050505;
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    display: flex; flex-direction: column; }
+  .rei-line { font-family: inherit; font-size: 10px; line-height: 12px; color: #bbb;
+    margin: 0; white-space: pre; }
+  .rei-mid { display: flex; align-items: center; flex: 1; min-height: 0; overflow: hidden; }
+  .rei-lyrbox { flex: 1; text-align: center; padding: 0 24px; min-width: 0; }
+  .rei-ctx { font-size: 12px; color: #6c6c6c; min-height: 17px; letter-spacing: .06em; }
+  #rei-cur { font-weight: 700; font-size: 30px; line-height: 1.25; color: #ffd7ff;
+    margin: 12px 0; letter-spacing: .03em; }
+  .rei-maribox { text-align: center; padding: 0 6px 0 10px;
+    display: flex; flex-direction: column; justify-content: center; }
+  #rei-cap { font-size: 10px; letter-spacing: .14em; color: #d7afff; margin-top: 8px; }
+  #rei-spec { display: inline-block; text-align: left; }
   #jack .jel { flex: 1; overflow: hidden; display: none; background: #050505;
     border: 1px solid var(--line-hot); }
   #jack.el .jel { display: flex; align-items: center; justify-content: center; }
@@ -317,7 +328,23 @@
       <div class="layer-top"><span class="id">layer:03</span><span class="st-on" data-ru="живая демка">live demo</span></div>
       <div class="screen" id="rei-screen">
         <div class="rei-host" title="reisync — click to enlarge">
-          <div class="rei-shell" id="rei-shell"><pre class="rei-pre" id="rei-pre" aria-label="reisync console demo, EVA-08 theme"></pre></div>
+          <div class="rei-shell" id="rei-shell" aria-label="reisync console demo, EVA-08 theme">
+            <pre class="rei-line" id="rei-hdr"></pre>
+            <pre class="rei-line" id="rei-title"></pre>
+            <div class="rei-mid">
+              <div class="rei-lyrbox">
+                <div id="rei-prev" class="rei-ctx"></div>
+                <div id="rei-cur"></div>
+                <div id="rei-next" class="rei-ctx"></div>
+                <pre class="rei-line" id="rei-spec" style="display:none"></pre>
+              </div>
+              <div class="rei-maribox">
+                <pre class="rei-line" id="rei-mari"></pre>
+                <div id="rei-cap">MAKINAMI MARI · EVA UNIT-08</div>
+              </div>
+            </div>
+            <pre class="rei-line" id="rei-bot"></pre>
+          </div>
         </div>
       </div>
       <div class="layer-body">
@@ -588,18 +615,24 @@ var REI_MARI = [
 ];
 
 (function () {
-  var pre = document.getElementById('rei-pre');
-  if (!pre) return;
+  var shell = document.getElementById('rei-shell');
+  if (!shell) return;
+  var host = shell.parentElement;
+  var elHdr = document.getElementById('rei-hdr');
+  var elTitle = document.getElementById('rei-title');
+  var elPrev = document.getElementById('rei-prev');
+  var elCur = document.getElementById('rei-cur');
+  var elNext = document.getElementById('rei-next');
+  var elSpec = document.getElementById('rei-spec');
+  var elMari = document.getElementById('rei-mari');
+  var elBot = document.getElementById('rei-bot');
 
   /* eva-08 theme, exact xterm-256 colors of the real app */
   var UI = '#ff87d7', UI_DIM = '#af5f87', UI_ACC = '#ffafd7';
   var A = '#af5fff', A_DIM = '#875faf', A_BR = '#d7afff';
   var LYR = '#ffd7ff', GRAY = '#6c6c6c', HDR = '#d75f87';
-  var W = 84, ZONE = 31, SPEC_H = 9;
+  var W = 150, SPEC_H = 9;
   var EQC = ' ▁▂▃▄▅▆▇█';
-  var CHAR_W = 0;
-  REI_MARI.forEach(function (l) { if (l.length > CHAR_W) CHAR_W = l.length; });
-  var LEFT_W = W - CHAR_W - 4;
 
   function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function sp(c, t) { return t ? '<span style="color:' + c + '">' + esc(t) + '</span>' : ''; }
@@ -620,7 +653,7 @@ var REI_MARI = [
     while (c) { n += c & 1; c >>= 1; }
     return n;
   }
-  var MARI_HTML = REI_MARI.map(function (line) {
+  elMari.innerHTML = REI_MARI.map(function (line) {
     var out = '', cur = null, buf = '';
     function flush() { if (buf) out += cur ? sp(cur, buf) : esc(buf); buf = ''; }
     for (var ch of line) {
@@ -631,13 +664,7 @@ var REI_MARI = [
     }
     flush();
     return out;
-  });
-  var CAPTION = 'MAKINAMI MARI · EVA UNIT-08';
-  var CAP_HTML = ' '.repeat(Math.max(Math.floor((CHAR_W - CAPTION.length) / 2), 0)) + sp(A_BR, CAPTION);
-
-  var bands = [];
-  for (var bi = 0; bi < 10; bi++) bands.push(0.3 + Math.random() * 0.5);
-  var ti = 0, pos = 0, last = Date.now();
+  }).join('\n');
 
   /* live subtitles: synced lyrics fetched from lrclib at runtime,
      exactly like the real app does */
@@ -680,75 +707,64 @@ var REI_MARI = [
     return idx;
   }
 
+  var bands = [];
+  for (var bi = 0; bi < 10; bi++) bands.push(0.3 + Math.random() * 0.5);
+  var ti = 0, pos = 0, last = Date.now();
+
+  function buildTitle(tr) {
+    var html = '\n';
+    tr.art.slice(0, 12).forEach(function (l) { html += sp(UI, '  ' + l) + '\n'; });
+    html += '\n' + sp(UI_DIM, '─'.repeat(W - 1));
+    elTitle.innerHTML = html;
+  }
+
+  function spectrumHtml(now) {
+    var SW = 62;
+    var label = 'AUDIO SPECTRUM ANALYSIS';
+    var html = sp(A_DIM, ' '.repeat(Math.max(Math.floor((SW - label.length) / 2), 0)) + label) + '\n\n';
+    var nB = Math.max(Math.floor((SW - 4) / 3), 1);
+    var sPad = ' '.repeat(Math.max(Math.floor((SW - nB * 3) / 2), 0));
+    for (var r = 0; r < SPEC_H; r++) {
+      var thr = SPEC_H - r;
+      var col = grad3(A_DIM, A, A_BR, 1 - r / (SPEC_H - 1));
+      var cells = '';
+      for (var b2 = 0; b2 < nB; b2++) {
+        var v = bands[Math.floor(b2 * bands.length / nB)] * SPEC_H * 1.3;
+        var ch2 = v >= thr ? '██' : (v > thr - 1 ? EQC[Math.min(Math.floor((v - (thr - 1)) * 8) + 1, 8)].repeat(2) : '  ');
+        cells += ch2 + ' ';
+      }
+      html += '<span style="color:' + col + '">' + sPad + cells + '</span>\n';
+    }
+    return html;
+  }
+
   function frame() {
     var now = Date.now() / 1000;
     var tr = REI_TRACKS[ti];
-    var lines = [];
 
     /* header band */
     var label = ' N E R V ▸ MAGI LYRIC-SYNC SYSTEM ▸ REISYNC ';
     var right = ' ' + (Math.floor(now * 2) % 2 ? '●' : '○') + ' SOUND ONLY ';
     var fill = ' '.repeat(Math.max(W - label.length - right.length, 0));
-    lines.push('<span style="background:' + HDR + ';color:#000">' + esc(label + fill + right) + '</span>');
+    elHdr.innerHTML = '<span style="background:' + HDR + ';color:#000">' + esc(label + fill + right) + '</span>';
 
-    /* top zone: title as figlet art (PRIMARY) */
-    var top = [''];
-    tr.art.slice(0, 12).forEach(function (l) { top.push(sp(UI, '  ' + l)); });
-    top.push('');
-    top.forEach(function (l) { lines.push(l); });
-    lines.push(sp(UI_DIM, '─'.repeat(W - 1)));
-
-    /* middle zone: lyric line (when synced text is loaded) or spectrum
-       on the left, MARI on the right */
-    var H = 6 + top.length + ZONE;
-    var zone = ZONE;
-    var reiOff = Math.max(Math.floor((zone - REI_MARI.length) / 2), 0);
-    var mid = [];
+    /* middle: big current lyric line like the real app, or spectrum */
     var li = lyricIndex(tr, pos);
     if (li !== null) {
-      var cline = function (txt, col) {
-        if (!txt) return '';
-        if (txt.length > LEFT_W - 2) txt = txt.slice(0, LEFT_W - 3) + '…';
-        return sp(col, ' '.repeat(Math.max(Math.floor((LEFT_W - txt.length) / 2), 0)) + txt);
-      };
+      elSpec.style.display = 'none';
+      elPrev.style.display = elCur.style.display = elNext.style.display = '';
+      elPrev.textContent = li > 0 ? tr.lines[li - 1][1] : '';
       var curL = tr.lines[li][1];
-      mid.push(li > 0 ? cline(tr.lines[li - 1][1], GRAY) : '');
-      mid.push('');
-      mid.push(cline(curL ? '♪ ' + curL : '···', LYR));
-      mid.push('');
-      mid.push(li + 1 < tr.lines.length ? cline(tr.lines[li + 1][1], GRAY) : '');
+      elCur.textContent = curL ? curL : '· · ·';
+      elNext.textContent = li + 1 < tr.lines.length ? tr.lines[li + 1][1] : '';
     } else {
-      var slabel = 'AUDIO SPECTRUM ANALYSIS';
-      mid.push(sp(A_DIM, ' '.repeat(Math.max(Math.floor((LEFT_W - slabel.length) / 2), 0)) + slabel));
-      mid.push('');
-      var nB = Math.max(Math.floor((LEFT_W - 4) / 3), 1);
-      var sPad = ' '.repeat(Math.max(Math.floor((LEFT_W - nB * 3) / 2), 0));
-      for (var r = 0; r < SPEC_H; r++) {
-        var thr = SPEC_H - r;
-        var col = grad3(A_DIM, A, A_BR, 1 - r / (SPEC_H - 1));
-        var cells = '';
-        for (var b2 = 0; b2 < nB; b2++) {
-          var v = bands[Math.floor(b2 * bands.length / nB)] * SPEC_H * 1.3;
-          var ch2 = v >= thr ? '██' : (v > thr - 1 ? EQC[Math.min(Math.floor((v - (thr - 1)) * 8) + 1, 8)].repeat(2) : '  ');
-          cells += ch2 + ' ';
-        }
-        mid.push('<span style="color:' + col + '">' + sPad + cells + '</span>');
-      }
-    }
-    var midOff = Math.max(Math.floor((zone - mid.length) / 2), 0);
-    for (var i = 0; i < zone && lines.length < H - 4; i++) {
-      var m = i - midOff;
-      var leftRaw = (m >= 0 && m < mid.length) ? mid[m] : '';
-      var leftLen = leftRaw ? leftRaw.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').length : 0;
-      var left = leftRaw + ' '.repeat(Math.max(LEFT_W - leftLen, 0));
-      var j = i - reiOff;
-      if (j >= 0 && j < REI_MARI.length) lines.push(left + '  ' + MARI_HTML[j]);
-      else if (j === REI_MARI.length + 1) lines.push(left + '  ' + CAP_HTML);
-      else lines.push(left);
+      elPrev.style.display = elCur.style.display = elNext.style.display = 'none';
+      elSpec.style.display = 'inline-block';
+      elSpec.innerHTML = spectrumHtml(now);
     }
 
     /* bottom: divider, progress, status, eq */
-    lines.push(sp(UI_DIM, '─'.repeat(W - 1)));
+    var lines = [sp(UI_DIM, '─'.repeat(W - 1))];
     var cur = ftime(pos), dur = ftime(tr.len);
     var barW = W - cur.length - dur.length - 6;
     var ratio = Math.min(pos / tr.len, 1);
@@ -770,8 +786,26 @@ var REI_MARI = [
       eq += sp(cc, EQC[Math.round(vv * 8)]);
     }
     lines.push(' ' + eq);
+    elBot.innerHTML = lines.join('\n');
+  }
 
-    pre.innerHTML = lines.join('\n');
+  /* stretch the console to exactly fill its container (TV screen or
+     modal): width-fit scale, flexible middle zone, adaptive MARI size */
+  function fitRei() {
+    var inModal = jack.classList.contains('el');
+    var box = inModal ? document.getElementById('jack-el') : host;
+    if (!box.clientWidth || !box.clientHeight) return;
+    shell.style.transform = 'none';
+    var w = shell.offsetWidth;
+    if (!w) return;
+    var s = (box.clientWidth / w) * (inModal ? 0.98 : 1);
+    var hLogical = box.clientHeight / s;
+    shell.style.height = hLogical + 'px';
+    var avail = hLogical - elHdr.offsetHeight - elTitle.offsetHeight - elBot.offsetHeight - 44;
+    var fs = Math.max(4, Math.min(10, Math.floor(avail / REI_MARI.length / 1.2)));
+    elMari.style.fontSize = fs + 'px';
+    elMari.style.lineHeight = Math.round(fs * 1.2) + 'px';
+    shell.style.transform = 'scale(' + s + ')';
   }
 
   function tickSim() {
@@ -780,32 +814,22 @@ var REI_MARI = [
     var tr = REI_TRACKS[ti];
     if (pos >= tr.len) {
       pos = 0; ti = (ti + 1) % REI_TRACKS.length;
+      buildTitle(REI_TRACKS[ti]);
       setTimeout(fitRei, 50);
     }
     bands = bands.map(function (v) { return Math.max(0.05, Math.min(v + (Math.random() - 0.5) * 0.3, 1)); });
     frame();
   }
-  var shell = document.getElementById('rei-shell');
-  var host = shell.parentElement;
 
-  /* fit the 84x52 console into its current container: TV screen or modal */
-  function fitRei() {
-    var inModal = jack.classList.contains('el');
-    var box = inModal ? document.getElementById('jack-el') : host;
-    shell.style.transform = 'none';
-    var w = pre.offsetWidth, h = pre.offsetHeight;
-    if (!w || !h || !box.clientWidth) return;
-    var s = Math.min(box.clientWidth / w, box.clientHeight / h) * (inModal ? 0.95 : 1);
-    shell.style.transform = 'scale(' + s + ')';
-  }
-
+  buildTitle(REI_TRACKS[0]);
   frame();
   fitRei();
   setTimeout(fitRei, 350);
   window.addEventListener('load', fitRei);
   window.addEventListener('resize', fitRei);
   if (window.ResizeObserver) new ResizeObserver(function () { fitRei(); }).observe(host);
-  if (!reduced) setInterval(tickSim, 240);
+  var reduced2 = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced2) setInterval(tickSim, 240);
 
   /* click card screen → enlarge in jack modal */
   document.getElementById('rei-screen').addEventListener('click', function () {
