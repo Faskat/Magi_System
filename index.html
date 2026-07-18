@@ -759,6 +759,7 @@ var REI_MARI = [
   setTimeout(fitRei, 350);
   window.addEventListener('load', fitRei);
   window.addEventListener('resize', fitRei);
+  if (window.ResizeObserver) new ResizeObserver(function () { fitRei(); }).observe(host);
   if (!reduced) setInterval(tickSim, 240);
 
   /* click card screen → enlarge in jack modal */
