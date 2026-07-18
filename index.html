@@ -17,18 +17,38 @@
     --phos: #b7c9a8;
     --text: #cfc9bd;
     --dim: #6f675c;
+    --strong: #efe9dd;
     --pink: #ff5e8a;
     --lime: #aaff66;
     --mono: "Courier New", "Cascadia Mono", Consolas, monospace;
   }
+  :root[data-theme="light"] {
+    --bg: #e9e4d8;
+    --panel: #f1ede2;
+    --panel-2: #e2dccb;
+    --line: #c6bda9;
+    --line-hot: #a3977e;
+    --red: #b02026;
+    --red-hot: #cf1f2b;
+    --green: #47703c;
+    --phos: #33604a;
+    --text: #33302a;
+    --dim: #7d7565;
+    --strong: #17130e;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { background: var(--bg); }
+  html { background: var(--bg); scrollbar-color: var(--line-hot) var(--bg); scrollbar-width: thin; }
   body {
     background: var(--bg); color: var(--text);
     font-family: var(--mono); font-size: 14px; line-height: 1.65;
     overflow-x: hidden;
   }
   ::selection { background: var(--red); color: #fff; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--line-hot); border: 3px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--red); }
+  ::-webkit-scrollbar-corner { background: var(--bg); }
 
   /* CRT overlay */
   .crt {
@@ -50,7 +70,7 @@
   /* header */
   header { padding: 26px 0 16px; border-bottom: 1px solid var(--line);
     display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-  .logo { font-size: 30px; font-weight: 700; letter-spacing: .06em; color: #efe9dd; position: relative; }
+  .logo { font-size: 30px; font-weight: 700; letter-spacing: .06em; color: var(--strong); position: relative; }
   .logo::after { content: "_"; color: var(--red-hot); animation: blink 1.1s steps(2) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
   .logo-sub { font-size: 12px; color: var(--dim); letter-spacing: .22em; margin-top: 4px; }
@@ -73,7 +93,7 @@
 
   /* sections */
   .sect { display: flex; align-items: baseline; gap: 14px; margin: 44px 0 20px; }
-  .sect h2 { font-size: 15px; font-weight: 700; letter-spacing: .26em; text-transform: lowercase; color: #efe9dd; }
+  .sect h2 { font-size: 15px; font-weight: 700; letter-spacing: .26em; text-transform: lowercase; color: var(--strong); }
   .sect h2::before { content: "> "; color: var(--red-hot); }
   .sect .line { flex: 1; border-top: 1px dashed var(--line); align-self: center; }
   .sect .jp { font-size: 11px; color: var(--dim); }
@@ -96,18 +116,29 @@
   .st-dev { color: #c9a15a; }
   .st-off { color: var(--red-hot); }
 
-  /* screens styled as old CRT TV sets: thick bezel, curved glass, glare */
+  /* screens styled as soviet CRT TV sets: lacquered wood cabinet,
+     cream trim, bulging rounded glass */
   .screen { position: relative; height: 300px; background: #060505; overflow: hidden;
-    margin: 16px 16px 0; border-radius: 20px;
-    border: 12px solid #17120e;
-    outline: 1px solid #342b21;
-    box-shadow: 0 8px 22px rgba(0,0,0,.6), inset 0 0 0 2px #000; }
-  .screen::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
-    border-radius: 10px;
+    margin: 18px 18px 0; border-radius: 22px;
+    border: 14px solid transparent;
+    border-image: repeating-linear-gradient(93deg,
+      #52351b 0 7px, #3e2812 7px 10px, #5d3e20 10px 16px,
+      #462d15 16px 19px, #56391d 19px 26px) 14;
+    box-shadow:
+      0 10px 26px rgba(0,0,0,.55),
+      inset 0 0 0 3px #d8c9a3,
+      inset 0 0 0 5px #1a120a,
+      inset 0 0 34px rgba(0,0,0,.9);
+  }
+  :root[data-theme="light"] .screen { box-shadow: 0 10px 26px rgba(60,40,20,.35),
+    inset 0 0 0 3px #d8c9a3, inset 0 0 0 5px #1a120a, inset 0 0 34px rgba(0,0,0,.9); }
+  .screen::after { content: ""; position: absolute; inset: 3px; z-index: 4; pointer-events: none;
+    border-radius: 26px / 32px;
     background:
-      radial-gradient(ellipse at center, transparent 56%, rgba(0,0,0,.55) 100%),
-      linear-gradient(112deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,.02) 16%, transparent 30%),
-      repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px); }
+      radial-gradient(ellipse 130% 120% at center, transparent 52%, rgba(0,0,0,.62) 96%),
+      radial-gradient(ellipse 90% 40% at 50% -6%, rgba(255,255,255,.13), transparent 60%),
+      linear-gradient(112deg, rgba(255,255,255,.09) 0%, rgba(255,255,255,.02) 15%, transparent 28%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 1px, transparent 1px 3px); }
   .screen iframe {
     width: 1280px; height: 800px; border: 0; transform-origin: 0 0;
     position: absolute; top: 0; left: 0; pointer-events: none; background: #fff;
@@ -122,7 +153,7 @@
     padding: 3px 10px 3px 14px; font-size: 12px; font-weight: 700; background: rgba(5,4,4,.6); }
 
   .layer-body { padding: 13px 15px 15px; }
-  .layer-body h3 { font-size: 18px; color: #efe9dd; letter-spacing: .03em; }
+  .layer-body h3 { font-size: 18px; color: var(--strong); letter-spacing: .03em; }
   .layer-body h3 .jp { font-size: 11px; color: var(--dim); margin-left: 8px; font-weight: 400; }
   .layer-body p { font-size: 12.5px; color: var(--dim); margin: 6px 0 12px; min-height: 3.2em; }
   .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -174,19 +205,17 @@
   .rei-shell { transform-origin: center center; }
   .rei-pre { font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
     font-size: 10px; line-height: 11px; color: #bbb; margin: 0; white-space: pre; }
-  #jack .jel { flex: 1; overflow: auto; display: none; background: #050505;
-    border: 1px solid var(--line-hot); padding: 10px; }
-  #jack.el .jel { display: block; }
+  #jack .jel { flex: 1; overflow: hidden; display: none; background: #050505;
+    border: 1px solid var(--line-hot); }
+  #jack.el .jel { display: flex; align-items: center; justify-content: center; }
   #jack.el iframe { display: none; }
-  #jack .jel .rei-shell { transform: none; }
-  #jack .jel .rei-pre { font-size: 13px; line-height: 14px; }
 
   /* profile */
   .prof { border: 1px solid var(--line); background: var(--panel); padding: 20px;
     display: grid; grid-template-columns: 140px 1fr; gap: 22px; }
   .ava { width: 140px; height: 140px; border: 1px solid var(--line-hot); position: relative; background: var(--panel-2); }
   .ava svg { position: absolute; inset: 0; }
-  .prof h3 { font-size: 20px; color: #efe9dd; }
+  .prof h3 { font-size: 20px; color: var(--strong); }
   .prof .row { display: grid; grid-template-columns: 150px 1fr; font-size: 12.5px;
     border-bottom: 1px dashed var(--line); padding: 6px 0; }
   .prof .row b { color: var(--dim); font-weight: 400; letter-spacing: .14em; font-size: 11px; text-transform: lowercase; }
@@ -239,7 +268,10 @@
       <div class="logo-sub" data-ru="слои вайрда · личный узел проектов">layers of the wired <em>·</em> personal project node</div>
     </div>
     <div class="hud">
-      <button class="langbtn" id="lang" aria-label="switch language">[<b>en</b>/ru]</button>
+      <span style="display:inline-flex; gap:8px;">
+        <button class="langbtn" id="theme" aria-label="switch theme">[dark]</button>
+        <button class="langbtn" id="lang" aria-label="switch language">[<b>en</b>/ru]</button>
+      </span>
       <div><span data-ru="слоёв на связи">layers online</span>: <b>5</b>/6 · <span id="clock">--:--:--</span></div>
     </div>
   </header>
@@ -381,6 +413,8 @@
       <h3>faskat</h3>
       <div class="row"><b data-ru="специализация">focus</b><span data-ru="full-stack, инструменты, игры">full-stack, tools, games</span></div>
       <div class="row"><b data-ru="стек">stack</b><span>Python · TypeScript · C#</span></div>
+      <div class="row"><b data-ru="слоёв в сети">layers deployed</b><span data-ru="5 активных + 1 слот">5 active + 1 slot</span></div>
+      <div class="row"><b>github</b><span><a href="https://github.com/Faskat" target="_blank" rel="noopener" style="color:var(--phos); text-decoration:none;">github.com/Faskat</a></span></div>
       <div class="row"><b data-ru="статус">status</b><span data-ru="открыт к интересным задачам">open to interesting problems</span></div>
       <div class="row"><b data-ru="локация">location</b><span data-ru="вайрд, слой 00">the wired, layer 00</span></div>
     </div>
@@ -391,7 +425,7 @@
   <div class="comms">
     <a href="https://github.com/Faskat" target="_blank" rel="noopener"><span>github</span><b>@Faskat</b></a>
     <a href="#"><span>telegram</span><b>@faskat</b></a>
-    <a href="#"><span data-ru="почта">mail</span><b>mail@…</b></a>
+    <a href="mailto:work.younube.lm@gmail.com"><span data-ru="почта">mail</span><b>work.younube.lm@gmail.com</b></a>
   </div>
 
   <footer>
@@ -709,13 +743,14 @@ var REI_MARI = [
   var shell = document.getElementById('rei-shell');
   var host = shell.parentElement;
 
-  /* fit the 84x52 console into whatever screen size the card has */
+  /* fit the 84x52 console into its current container: TV screen or modal */
   function fitRei() {
-    if (jack.classList.contains('el')) return;
+    var inModal = jack.classList.contains('el');
+    var box = inModal ? document.getElementById('jack-el') : host;
     shell.style.transform = 'none';
     var w = pre.offsetWidth, h = pre.offsetHeight;
-    if (!w || !h) return;
-    var s = Math.min(host.clientWidth / w, host.clientHeight / h);
+    if (!w || !h || !box.clientWidth) return;
+    var s = Math.min(box.clientWidth / w, box.clientHeight / h) * (inModal ? 0.95 : 1);
     shell.style.transform = 'scale(' + s + ')';
   }
 
@@ -730,9 +765,10 @@ var REI_MARI = [
   document.getElementById('rei-screen').addEventListener('click', function () {
     document.getElementById('jack-title').textContent = 'uplink // reisync — eva-08 live demo';
     document.getElementById('jack-el').appendChild(shell);
-    shell.style.transform = 'none';
     jack.classList.add('open');
     jack.classList.add('el');
+    fitRei();
+    setTimeout(fitRei, 60);
   });
   window.reiRestore = function () {
     if (jack.classList.contains('el')) {
@@ -742,6 +778,19 @@ var REI_MARI = [
     }
   };
 })();
+
+/* theme toggle dark <-> light, persisted */
+var THEME = localStorage.getItem('hub-theme') || 'dark';
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', THEME);
+  document.getElementById('theme').textContent = THEME === 'dark' ? '[dark]' : '[light]';
+}
+applyTheme();
+document.getElementById('theme').addEventListener('click', function () {
+  THEME = THEME === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('hub-theme', THEME);
+  applyTheme();
+});
 
 /* language toggle en <-> ru */
 var LANG = 'en';
