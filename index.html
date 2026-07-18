@@ -177,8 +177,43 @@
   .eq-head { position: absolute; top: 8px; left: 12px; right: 12px; display: flex;
     justify-content: space-between; font-size: 10px; letter-spacing: .2em; color: var(--phos); z-index: 2; }
 
+  /* Terraformer: static, non-interactive replica of the editor UI */
+  .te { pointer-events: none; user-select: none; display: flex; flex-direction: column;
+    background: #0b0b10; font-size: 10px; color: #767683; letter-spacing: .04em; }
+  .te-top { display: flex; align-items: center; gap: 10px; padding: 5px 10px;
+    background: #121218; border-bottom: 1px solid #232330; }
+  .te-top b { color: #d6d6df; font-size: 10px; letter-spacing: .18em; }
+  .te-tools { display: flex; gap: 4px; }
+  .te-tools i { font-style: normal; width: 20px; height: 18px; display: inline-flex;
+    align-items: center; justify-content: center; background: #16161d;
+    border: 1px solid #232330; border-radius: 4px; color: #767683; font-size: 10px; }
+  .te-tools i.on { background: rgba(123,97,255,.22); border-color: #7b61ff; color: #b8a8ff; }
+  .te-world { margin-left: auto; color: #767683; }
+  .te-main { flex: 1; display: flex; min-height: 0; }
+  .te-left { width: 86px; background: #121218; border-right: 1px solid #232330;
+    padding: 8px; display: flex; flex-direction: column; gap: 5px; }
+  .te-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: .12em; }
+  .te-slider { height: 4px; background: #232330; border-radius: 2px; }
+  .te-slider i { display: block; height: 100%; background: #7b61ff; border-radius: 2px; }
+  .te-chips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+  .te-chips i, .te-chip { font-style: normal; font-size: 8.5px; padding: 1px 5px;
+    border: 1px solid #232330; border-radius: 3px; background: #16161d; color: #767683; }
+  .te-chips i.on, .te-chip.on { background: rgba(123,97,255,.22); border-color: #7b61ff; color: #b8a8ff; }
+  .te-canvas { flex: 1; position: relative; padding: 6px; min-width: 0; }
+  .te-sel { position: absolute; left: 34%; top: 22%; width: 30%; height: 38%;
+    border: 1px dashed #7b61ff; background: rgba(123,97,255,.08); border-radius: 2px; }
+  .te-right { width: 74px; background: #121218; border-left: 1px solid #232330;
+    padding: 8px 8px 6px; display: flex; flex-direction: column; gap: 4px; }
+  .te-mini { aspect-ratio: 1; background: #16161d; border: 1px solid #232330;
+    border-radius: 3px; position: relative; }
+  .te-mini i { position: absolute; left: 30%; top: 26%; width: 34%; height: 30%;
+    border: 1px solid #3ecf6e; border-radius: 1px; }
+  .te-status { display: flex; align-items: center; gap: 10px; padding: 4px 10px;
+    background: #121218; border-top: 1px solid #232330; font-size: 9px; }
+  .te-ready { margin-left: auto; color: #3ecf6e; }
+
   .pv-map { display: grid; grid-template-columns: repeat(11, 1fr); grid-template-rows: repeat(6, 1fr);
-    gap: 2px; height: 100%; padding: 10px; }
+    gap: 2px; height: 100%; }
   .pv-map i { background: #2c5330; }
   .pv-map i.s { background: #6d7a38; }
   .pv-map i.w { background: #1d3f5e; }
@@ -380,7 +415,35 @@
     <article class="layer">
       <div class="layer-top"><span class="id">layer:05</span><span class="st-dev" data-ru="полевые испытания">field test</span></div>
       <div class="screen">
-        <div class="pv"><div class="pv-map" id="map"></div></div>
+        <div class="pv te" aria-label="Terraformer editor interface, static preview">
+          <div class="te-top">
+            <b>TERRAFORMER</b>
+            <span class="te-tools"><i class="on">⛰</i><i>⌄</i><i>≈</i><i>▭</i><i>▲</i></span>
+            <span class="te-world">TestWorld · 1.21.4</span>
+          </div>
+          <div class="te-main">
+            <div class="te-left">
+              <div class="te-lbl">brush</div>
+              <div class="te-slider"><i style="width:64%"></i></div>
+              <div class="te-lbl">strength</div>
+              <div class="te-slider"><i style="width:38%"></i></div>
+              <div class="te-chips"><i class="on">solid</i><i>noise</i><i>grad</i></div>
+            </div>
+            <div class="te-canvas">
+              <div class="pv-map" id="map"></div>
+              <div class="te-sel"></div>
+            </div>
+            <div class="te-right">
+              <div class="te-mini"><i></i></div>
+              <div class="te-lbl" style="text-align:center;">minimap</div>
+            </div>
+          </div>
+          <div class="te-status">
+            <span>x: 128 z: -64</span><span>zoom 1.5x</span>
+            <span class="te-chip on">contours</span><span class="te-chip">biomes</span>
+            <span class="te-ready">● ready</span>
+          </div>
+        </div>
         <div class="shade"></div>
       </div>
       <div class="layer-body">
