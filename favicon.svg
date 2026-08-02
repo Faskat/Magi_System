@@ -1,26 +1,57 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <!-- F assembled out of glyphs from the background lattice:
-       bars for the stem, horizontal signs for the two arms -->
+  <!-- F assembled out of the glyphs that drift across the site background.
+       The symbols are drawn as shapes, not <text>: favicon rasterizers pick
+       their own font and baseline, and the letter fell apart. -->
   <rect width="32" height="32" rx="4" fill="#0a0c0d"/>
-  <g fill="#39ffc4" font-family="ui-monospace, 'DejaVu Sans Mono', 'Courier New', monospace"
-     font-size="6.4" font-weight="700" text-anchor="middle" dominant-baseline="central">
-    <!-- stem -->
-    <text x="9.2" y="4.6">†</text>
-    <text x="9.2" y="8.0">|</text>
-    <text x="9.2" y="11.4">¦</text>
-    <text x="9.2" y="14.8">‡</text>
-    <text x="9.2" y="18.2">|</text>
-    <text x="9.2" y="21.6">¦</text>
-    <text x="9.2" y="25.0">|</text>
-    <text x="9.2" y="28.4">‡</text>
-    <!-- top arm -->
-    <text x="12.6" y="4.6">≡</text>
-    <text x="16.0" y="4.6">≈</text>
-    <text x="19.4" y="4.6">≡</text>
-    <text x="22.8" y="4.6">◊</text>
-    <!-- middle arm -->
-    <text x="12.6" y="14.8">≡</text>
-    <text x="16.0" y="14.8">≈</text>
-    <text x="19.4" y="14.8">◊</text>
+  <g fill="#39ffc4" stroke="#39ffc4" stroke-width="1" stroke-linecap="square">
+
+    <!-- stem: † | ‡ | ¦ | -->
+    <g transform="translate(9.5,6)" stroke="none">
+      <rect x="-0.9" y="-2.6" width="1.8" height="5.2"/>
+      <rect x="-2.3" y="-1.4" width="4.6" height="1.2"/>
+    </g>
+    <g transform="translate(9.5,10.4)" stroke="none">
+      <rect x="-0.9" y="-2.4" width="1.8" height="4.8"/>
+    </g>
+    <g transform="translate(9.5,14.8)" stroke="none">
+      <rect x="-0.9" y="-2.6" width="1.8" height="5.2"/>
+      <rect x="-2.3" y="-1.7" width="4.6" height="1.1"/>
+      <rect x="-2.3" y="0.6" width="4.6" height="1.1"/>
+    </g>
+    <g transform="translate(9.5,19.2)" stroke="none">
+      <rect x="-0.9" y="-2.4" width="1.8" height="4.8"/>
+    </g>
+    <g transform="translate(9.5,23.6)" stroke="none">
+      <rect x="-0.9" y="-2.4" width="1.8" height="2"/>
+      <rect x="-0.9" y="0.4" width="1.8" height="2"/>
+    </g>
+    <g transform="translate(9.5,28)" stroke="none">
+      <rect x="-0.9" y="-2.4" width="1.8" height="4.8"/>
+    </g>
+
+    <!-- top arm: ≡ ≈ ◊ -->
+    <g transform="translate(14,6)" stroke="none">
+      <rect x="-2.2" y="-2.0" width="4.4" height="1.1"/>
+      <rect x="-2.2" y="-0.55" width="4.4" height="1.1"/>
+      <rect x="-2.2" y="0.9" width="4.4" height="1.1"/>
+    </g>
+    <g transform="translate(18.4,6)" fill="none" stroke-width="1.1" stroke-linecap="round">
+      <path d="M-2.2,-0.9 q1.1,-1.5 2.2,0 t2.2,0"/>
+      <path d="M-2.2,1.6 q1.1,-1.5 2.2,0 t2.2,0"/>
+    </g>
+    <g transform="translate(22.8,6)" fill="none" stroke-width="1.1" stroke-linejoin="miter">
+      <path d="M0,-2.5 L2.1,0 L0,2.5 L-2.1,0 Z"/>
+    </g>
+
+    <!-- middle arm: ≡ ◊ -->
+    <g transform="translate(14,14.8)" stroke="none">
+      <rect x="-2.2" y="-2.0" width="4.4" height="1.1"/>
+      <rect x="-2.2" y="-0.55" width="4.4" height="1.1"/>
+      <rect x="-2.2" y="0.9" width="4.4" height="1.1"/>
+    </g>
+    <g transform="translate(18.6,14.8)" fill="none" stroke-width="1.1" stroke-linejoin="miter">
+      <path d="M0,-2.5 L2.1,0 L0,2.5 L-2.1,0 Z"/>
+    </g>
+
   </g>
 </svg>
