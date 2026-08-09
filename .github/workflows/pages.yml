@@ -1,8 +1,10 @@
 name: Deploy to GitHub Pages
 
+# Manual only: the live site runs on Railway. This is the ready-to-go
+# serverless path — flip Settings -> Pages -> Source to "GitHub Actions"
+# and run this workflow, nothing else needed. Add a push trigger here if
+# Pages ever becomes the primary host.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
