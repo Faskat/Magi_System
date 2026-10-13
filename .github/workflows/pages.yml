@@ -25,6 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/check_site.py
+
       # only the two files the site actually serves — no package.json,
       # no workflow, no readme sitting on the public host
       - name: Assemble site
